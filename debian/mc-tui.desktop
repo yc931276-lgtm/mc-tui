@@ -1,0 +1,11 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=MC-TUI
+GenericName=Minecraft Launcher
+Comment=Terminal User Interface Minecraft Launcher for local files
+Exec=mc-tui
+Icon=mc-tui
+Terminal=true
+Categories=Game;
+Keywords=minecraft;launcher;tui;curses;

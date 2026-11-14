@@ -1,0 +1,7 @@
+mc-tui (1.0.0-1) unstable; urgency=medium
+
+  * Initial Debian package release of MC-TUI.
+  * Packaged pure Python implementation with zero pip dependencies.
+  * Added CLI command `/usr/bin/mc-tui` and desktop launcher entry.
+
+ -- heaway <heaway@localhost>  Sun, 08 Nov 2026 13:53:06 +0800

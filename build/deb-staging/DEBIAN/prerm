@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+if which py3clean >/dev/null 2>&1; then
+    py3clean -p mc-tui 2>/dev/null || true
+fi
+
+exit 0

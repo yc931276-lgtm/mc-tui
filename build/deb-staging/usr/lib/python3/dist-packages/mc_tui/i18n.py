@@ -1,0 +1,357 @@
+"""Internationalization (i18n) and localization support for MC-TUI."""
+from __future__ import annotations
+
+import os
+from typing import Any, Dict
+
+# Current active language code ('zh_CN' or 'en')
+_CURRENT_LANG = "en"
+
+TRANSLATIONS: Dict[str, Dict[str, str]] = {
+    "en": {
+        # Header & Tabs
+        "title": " MC-TUI: Local Minecraft Launcher ",
+        "tab_versions": "1: Versions",
+        "tab_settings": "2: Settings",
+        "tab_console": "3: Console",
+        "tab_dir": "4: Game Dir",
+        "tab_download": "5: Download",
+        "status_running": "● Minecraft Running",
+        "status_stopped": "○ Stopped ({code})",
+        "status_idle": "○ Idle",
+        "info_bar": "Dir: {dir}  │  User: {user}  │  {java}",
+
+        # Footers
+        "footer_0": "[1-5] Tabs  [↑/↓] Select  [Enter] Launch  [d] Download Vanilla  [p] Preview  [/] Filter  [r] Refresh  [q] Quit",
+        "footer_1": "[1-5] Tabs  [↑/↓] Field   [Enter] Edit    [s] Save Config  [r] Reset Defaults  [q] Quit",
+        "footer_2": "[1-5] Tabs  [↑/↓/PgUp/PgDn] Scroll  [Space] Auto-scroll  [k] Kill MC  [c] Clear  [q] Quit",
+        "footer_3": "[1-5] Tabs  [↑/↓] Choose Common Dir  [Enter] Select  [e] Custom Path  [q] Quit",
+        "footer_4": "[1-5] Tabs  [↑/↓] Select  [Enter] Download  [s] Snapshots  [a] Assets  [/] Filter  [r] Refresh  [q] Quit",
+        "footer_default": "[1-5] Switch Tabs  [q] Quit",
+
+        # Versions View
+        "box_installed_versions": "Installed Versions ({count})",
+        "filter_prefix": "Filter: {filter}",
+        "no_versions_found": "No Minecraft versions found in:",
+        "press_d_to_download": "Press [5] or [d] to download Vanilla Minecraft directly!",
+        "press_4_to_switch_dir": "Press [4] to switch or select Game Dir.",
+        "press_r_to_refresh": "Press [r] to refresh.",
+        "box_version_details": "Version Details",
+        "version_id": "Version ID:",
+        "version_type": "Type:",
+        "release_date": "Release Date:",
+        "java_version": "Java Version:",
+        "inherits_from": "Inherits From:",
+        "main_class": "Main Class:",
+        "btn_launch": " ▶ LAUNCH VERSION (Press Enter) ",
+        "select_version_hint": "Select a version to view info.",
+
+        # Settings View
+        "box_settings": "Launcher Settings & Profile",
+        "field_username": "Player Username",
+        "desc_username": "Offline player nickname and UUID generator",
+        "field_min_ram": "Minimum RAM (-Xms)",
+        "desc_min_ram": "Initial heap allocation (e.g. 512M, 1G)",
+        "field_max_ram": "Maximum RAM (-Xmx)",
+        "desc_max_ram": "Maximum heap allocation (e.g. 2G, 4G, 8G)",
+        "field_java_path": "Java Executable Path",
+        "desc_java_path": "Path to java binary or auto-detect",
+        "field_game_dir": "Game Directory",
+        "desc_game_dir": "Root directory for versions, libraries, and assets",
+        "field_jvm_flags": "Custom JVM Flags",
+        "desc_jvm_flags": "Extra arguments passed to Java JVM",
+        "field_win_w": "Window Width",
+        "desc_win_w": "Default initial Minecraft window width",
+        "field_win_h": "Window Height",
+        "desc_win_h": "Default initial Minecraft window height",
+        "field_mirror": "Download Mirror",
+        "desc_mirror": "Mirror source: 'official' (Mojang) or 'bmclapi'",
+        "field_assets": "Download Assets",
+        "desc_assets": "Download sounds, textures, and language files",
+        "field_language": "Interface Language",
+        "desc_language": "Display language: 'auto', 'zh_CN', or 'en'",
+
+        # Console View
+        "box_console": "Minecraft Console Output [{status}]  ({scroll})",
+        "console_running": "RUNNING",
+        "console_stopped": "STOPPED (exit: {code})",
+        "auto_scroll_on": "Auto-scroll: ON",
+        "scroll_offset": "Scroll: {offset}",
+        "no_logs_yet": "No logs yet. Launch a version to see console logs here.",
+
+        # Dir Picker View
+        "box_dir_picker": "Select Game Directory (.minecraft)",
+        "current_game_dir": "Current Game Directory: {dir}",
+        "discovered_dirs": "Discovered or Common Directories:",
+        "current_marker": " [CURRENT] ",
+        "versions_count": "({count} versions found)",
+        "zero_versions": "(0 versions)",
+        "dir_picker_hint": "Press [e] to enter a custom path directly, or [Enter] to choose highlighted.",
+
+        # Downloader View
+        "box_remote_versions": "Mojang Vanilla Versions ({count})",
+        "connecting_mojang": "Connecting to Mojang...",
+        "fetching_manifest": "Fetching version manifest and metadata...",
+        "failed_manifest": "Failed to load version manifest:",
+        "press_r_retry": "Press [r] to retry, or check network / mirror.",
+        "mode_releases": "Releases Only",
+        "mode_all": "All (Releases & Snapshots)",
+        "mode_header": "Mode: {mode}  [s: toggle]",
+        "filter_mode_header": "Filter: {filter}  │  Mode: {mode}  [s: toggle]",
+        "no_remote_found": "No matching versions found.",
+        "clear_filter_hint": "Press [/] to clear filter or [s] to toggle snapshots.",
+        "badge_installed": " ✔ Installed",
+        "status_installed": "● Installed locally",
+        "status_not_installed": "○ Not installed",
+        "box_download_details": "Download Details",
+        "download_options": "Download Options:",
+        "include_assets_opt": "Include Assets: {opt}",
+        "assets_yes": "Yes (Full: Sounds, Textures)",
+        "assets_no": "No (Quick: Jar + Libs only)",
+        "mirror_opt": "Mirror: {mirror}",
+        "dest_opt": "Dest: {dest}",
+        "btn_download": " ▶ DOWNLOAD VERSION (Enter) ",
+        "btn_redownload": " ↺ RE-DOWNLOAD / VERIFY (Enter) ",
+        "download_bottom_hint": "[a] Toggle Assets  [s] Snapshots",
+        "select_download_hint": "Select a version to download.",
+
+        # Download Progress Modal
+        "modal_downloading": " Downloading Minecraft {version} ",
+        "preparing_download": "Preparing download...",
+        "file_prefix": "File: {file}",
+        "cancel_download_hint": "[Esc] or [q] Cancel Download",
+
+        # Dialogs & Prompts
+        "confirm_cancel_hint": "[Enter] Confirm   [Esc] Cancel",
+        "mc_running_quit": "Minecraft is running! Quit launcher? (y/n)",
+        "filter_prompt": "Filter versions by name:",
+        "refresh_complete": "Refresh Complete",
+        "refresh_found": "Found {count} version(s).",
+        "no_version_sel": "No Version Selected",
+        "no_version_sel_desc": "No Minecraft version is currently selected.",
+        "launch_error": "Launch Error",
+        "launch_failed": "Failed to launch {version}:",
+        "preview_cmd_title": "Launch Command: {version}",
+        "preview_error": "Preview Error",
+        "config_saved": "Config Saved",
+        "config_saved_desc": "Configuration successfully saved to disk!",
+        "reset_defaults_prompt": "Reset all settings to defaults? (y/n)",
+        "reset_complete": "Reset",
+        "reset_complete_desc": "Settings restored to defaults.",
+        "prompt_username": "Enter Player Username:",
+        "prompt_min_ram": "Enter Minimum RAM (-Xms, e.g. 512M, 1G):",
+        "prompt_max_ram": "Enter Maximum RAM (-Xmx, e.g. 2G, 4G, 8G):",
+        "prompt_java_path": "Enter Java Executable Path (blank for auto-detect):",
+        "prompt_game_dir": "Enter Game Directory Path:",
+        "prompt_jvm_flags": "Enter Custom JVM Flags:",
+        "prompt_win_w": "Enter Initial Window Width:",
+        "prompt_win_h": "Enter Initial Window Height:",
+        "prompt_mirror": "Enter Download Mirror (official / bmclapi):",
+        "prompt_language": "Enter Language (auto / zh_CN / en):",
+        "terminate_prompt": "Terminate Minecraft process? (y/n)",
+        "proc_stopped": "Process Stopped",
+        "proc_stopped_desc": "Minecraft process terminated.",
+        "dir_changed": "Game Dir Changed",
+        "dir_set_to": "Game directory set to:",
+        "prompt_custom_dir": "Enter custom directory path:",
+        "prompt_remote_filter": "Filter vanilla versions by name:",
+        "refreshing_manifest_title": "Refreshing",
+        "refreshing_manifest_desc": "Fetching latest version manifest from Mojang...",
+        "already_installed_prompt": "{version} already exists. Re-download/verify? (y/n)",
+        "download_done_prompt": "Minecraft {version} downloaded! Switch to Versions tab? (y/n)",
+        "download_cancelled": "Download Cancelled",
+        "download_cancelled_desc": "Download was cancelled by user.",
+        "download_failed_title": "Download Failed",
+        "download_failed_desc": "Failed to download Minecraft {version}:",
+    },
+    "zh_CN": {
+        # 顶部栏与标签
+        "title": " MC-TUI: 本地 Minecraft 启动器 ",
+        "tab_versions": "1: 版本列表",
+        "tab_settings": "2: 启动设置",
+        "tab_console": "3: 控制台",
+        "tab_dir": "4: 游戏目录",
+        "tab_download": "5: 原版下载",
+        "status_running": "● 游戏运行中",
+        "status_stopped": "○ 已停止 ({code})",
+        "status_idle": "○ 空闲",
+        "info_bar": "目录: {dir}  │  玩家: {user}  │  {java}",
+
+        # 底部快捷键提示
+        "footer_0": "[1-5] 标签  [↑/↓] 选择  [Enter] 启动游戏  [d] 下载原版  [p] 预览命令  [/] 过滤  [r] 刷新  [q] 退出",
+        "footer_1": "[1-5] 标签  [↑/↓] 选择配置项  [Enter] 修改  [s] 保存设置  [r] 恢复默认  [q] 退出",
+        "footer_2": "[1-5] 标签  [↑/↓/PgUp/PgDn] 滚动  [空格] 自动滚动  [k] 结束游戏  [c] 清屏  [q] 退出",
+        "footer_3": "[1-5] 标签  [↑/↓] 选择常用目录  [Enter] 确认切换  [e] 手动输入路径  [q] 退出",
+        "footer_4": "[1-5] 标签  [↑/↓] 选择版本  [Enter] 开始下载  [s] 快照开关  [a] 资源开关  [/] 搜索  [r] 刷新  [q] 退出",
+        "footer_default": "[1-5] 切换标签  [q] 退出",
+
+        # 版本列表界面
+        "box_installed_versions": "已安装版本 ({count})",
+        "filter_prefix": "过滤: {filter}",
+        "no_versions_found": "未在当前目录找到任何 Minecraft 版本:",
+        "press_d_to_download": "按 [5] 或 [d] 立即下载 Mojang 官方原版 Minecraft！",
+        "press_4_to_switch_dir": "按 [4] 切换或选择游戏目录。",
+        "press_r_to_refresh": "按 [r] 刷新版本列表。",
+        "box_version_details": "版本详细信息",
+        "version_id": "版本 ID:",
+        "version_type": "版本类型:",
+        "release_date": "发布时间:",
+        "java_version": "Java 版本需求:",
+        "inherits_from": "继承父版本:",
+        "main_class": "启动主类:",
+        "btn_launch": " ▶ 启动选中的版本 (按回车) ",
+        "select_version_hint": "请在左侧选择版本以查看信息。",
+
+        # 设置界面
+        "box_settings": "启动器参数与玩家配置",
+        "field_username": "玩家游戏名称",
+        "desc_username": "离线玩家昵称与 UUID 生成依据",
+        "field_min_ram": "最小内存 (-Xms)",
+        "desc_min_ram": "JVM 初始堆内存大小 (如 512M, 1G)",
+        "field_max_ram": "最大内存 (-Xmx)",
+        "desc_max_ram": "JVM 最大允许分配堆内存 (如 2G, 4G, 8G)",
+        "field_java_path": "Java 执行文件路径",
+        "desc_java_path": "自定义 Java 路径，留空则自动检测最优环境",
+        "field_game_dir": "游戏核心数据目录",
+        "desc_game_dir": "存放 versions, libraries, assets 的根目录",
+        "field_jvm_flags": "自定义 JVM 附加参数",
+        "desc_jvm_flags": "传递给 Java 虚拟机的附加运行参数",
+        "field_win_w": "初始窗口宽度",
+        "desc_win_w": "Minecraft 启动时的默认窗口宽度 (像素)",
+        "field_win_h": "初始窗口高度",
+        "desc_win_h": "Minecraft 启动时的默认窗口高度 (像素)",
+        "field_mirror": "下载镜像源",
+        "desc_mirror": "下载源：'official' (官方源) 或 'bmclapi' (国内镜像)",
+        "field_assets": "下载资源文件",
+        "desc_assets": "是否下载声音、材质与语言包等完整资源",
+        "field_language": "界面显示语言",
+        "desc_language": "界面语言：'auto' (自动), 'zh_CN' (简体中文), 'en' (英文)",
+
+        # 控制台界面
+        "box_console": "Minecraft 控制台输出 [{status}]  ({scroll})",
+        "console_running": "运行中",
+        "console_stopped": "已停止 (退出码: {code})",
+        "auto_scroll_on": "自动滚动: 开",
+        "scroll_offset": "滚动行: {offset}",
+        "no_logs_yet": "暂无日志。启动游戏后可在此查看实时运行输出。",
+
+        # 目录选择器界面
+        "box_dir_picker": "选择游戏根目录 (.minecraft)",
+        "current_game_dir": "当前生效游戏目录: {dir}",
+        "discovered_dirs": "已发现的常见游戏目录:",
+        "current_marker": " [当前活动] ",
+        "versions_count": "({count} 个可用版本)",
+        "zero_versions": "(0 个版本)",
+        "dir_picker_hint": "按 [e] 直接输入自定义路径，或按 [Enter] 选择高亮项。",
+
+        # 下载器界面
+        "box_remote_versions": "Mojang 官方原版核心 ({count})",
+        "connecting_mojang": "正在连接 Mojang 服务器...",
+        "fetching_manifest": "正在获取版本清单及元数据...",
+        "failed_manifest": "获取版本清单失败:",
+        "press_r_retry": "按 [r] 重试，或检查网络连接 / 镜像源设置。",
+        "mode_releases": "仅正式发布版",
+        "mode_all": "全部版本 (含快照与测试版)",
+        "mode_header": "筛选: {mode}  [按 s 切换]",
+        "filter_mode_header": "搜索: {filter}  │  筛选: {mode}  [按 s 切换]",
+        "no_remote_found": "未找到匹配的 Minecraft 版本。",
+        "clear_filter_hint": "按 [/] 清空搜索条件，或按 [s] 开启快照显示。",
+        "badge_installed": " ✔ 已安装",
+        "status_installed": "● 本地已安装",
+        "status_not_installed": "○ 本地未安装",
+        "box_download_details": "版本下载信息",
+        "download_options": "下载配置:",
+        "include_assets_opt": "包含资源文件: {opt}",
+        "assets_yes": "是 (完整下载声音、材质与语言包)",
+        "assets_no": "否 (快速下载：仅客户端核心与依赖库)",
+        "mirror_opt": "镜像源: {mirror}",
+        "dest_opt": "保存目标: {dest}",
+        "btn_download": " ▶ 开始下载此版本 (回车确认) ",
+        "btn_redownload": " ↺ 重新下载 / 完整校验 (回车确认) ",
+        "download_bottom_hint": "[a] 切换资源下载  [s] 切换快照显示",
+        "select_download_hint": "请在左侧选择要下载的原版版本。",
+
+        # 下载进度浮层
+        "modal_downloading": " 正在下载 Minecraft {version} ",
+        "preparing_download": "正在初始化下载任务...",
+        "file_prefix": "文件: {file}",
+        "cancel_download_hint": "[Esc] 或 [q] 取消下载",
+
+        # 弹窗与交互输入提示
+        "confirm_cancel_hint": "[Enter] 确认   [Esc] 取消",
+        "mc_running_quit": "Minecraft 正在运行中！确定退出启动器吗？(y/n)",
+        "filter_prompt": "输入版本名称进行过滤:",
+        "refresh_complete": "刷新完成",
+        "refresh_found": "共发现 {count} 个版本。",
+        "no_version_sel": "未选择版本",
+        "no_version_sel_desc": "当前没有选中的 Minecraft 版本。",
+        "launch_error": "启动错误",
+        "launch_failed": "启动 {version} 失败:",
+        "preview_cmd_title": "启动命令预览: {version}",
+        "preview_error": "预览错误",
+        "config_saved": "配置已保存",
+        "config_saved_desc": "启动器配置已成功保存到磁盘！",
+        "reset_defaults_prompt": "确定恢复所有设置为默认值吗？(y/n)",
+        "reset_complete": "已重置",
+        "reset_complete_desc": "设置已全部恢复为初始默认值。",
+        "prompt_username": "输入玩家游戏名称:",
+        "prompt_min_ram": "输入最小内存 (-Xms, 例: 512M, 1G):",
+        "prompt_max_ram": "输入最大内存 (-Xmx, 例: 2G, 4G, 8G):",
+        "prompt_java_path": "输入 Java 可执行路径 (留空为自动检测):",
+        "prompt_game_dir": "输入游戏目录路径:",
+        "prompt_jvm_flags": "输入自定义 JVM 附加参数:",
+        "prompt_win_w": "输入窗口初始宽度:",
+        "prompt_win_h": "输入窗口初始高度:",
+        "prompt_mirror": "输入下载镜像源 (official / bmclapi):",
+        "prompt_language": "输入界面语言 (auto / zh_CN / en):",
+        "terminate_prompt": "确定终止运行中的 Minecraft 进程吗？(y/n)",
+        "proc_stopped": "进程已停止",
+        "proc_stopped_desc": "Minecraft 游戏进程已被终止。",
+        "dir_changed": "游戏目录已更改",
+        "dir_set_to": "游戏目录已成功设置为:",
+        "prompt_custom_dir": "输入自定义目录路径:",
+        "prompt_remote_filter": "搜索原版版本名称:",
+        "refreshing_manifest_title": "正在刷新",
+        "refreshing_manifest_desc": "正在从 Mojang 获取最新的版本清单...",
+        "already_installed_prompt": "{version} 在本地已存在。是否重新下载并校验？(y/n)",
+        "download_done_prompt": "Minecraft {version} 下载成功！是否立即切换到版本列表？(y/n)",
+        "download_cancelled": "下载已取消",
+        "download_cancelled_desc": "下载已被用户主动取消。",
+        "download_failed_title": "下载失败",
+        "download_failed_desc": "下载 Minecraft {version} 时发生错误:",
+    },
+}
+
+
+def set_language(lang_code: str) -> None:
+    """Set active language code ('auto', 'zh_CN', or 'en')."""
+    global _CURRENT_LANG
+    if lang_code == "auto":
+        sys_lang = os.environ.get("LANG", "") or os.environ.get("LC_ALL", "")
+        if "zh" in sys_lang.lower():
+            _CURRENT_LANG = "zh_CN"
+        else:
+            _CURRENT_LANG = "en"
+    elif lang_code in TRANSLATIONS:
+        _CURRENT_LANG = lang_code
+    elif lang_code.startswith("zh"):
+        _CURRENT_LANG = "zh_CN"
+    else:
+        _CURRENT_LANG = "en"
+
+
+def get_language() -> str:
+    """Get active language code."""
+    return _CURRENT_LANG
+
+
+def t(key: str, **kwargs: Any) -> str:
+    """Get localized text by key."""
+    lang_dict = TRANSLATIONS.get(_CURRENT_LANG, TRANSLATIONS["en"])
+    val = lang_dict.get(key, TRANSLATIONS["en"].get(key, key))
+    if kwargs:
+        try:
+            return val.format(**kwargs)
+        except Exception:
+            return val
+    return val

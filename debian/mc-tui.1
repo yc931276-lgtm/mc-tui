@@ -1,0 +1,86 @@
+.TH MC-TUI 1 "November 2026" "mc-tui 1.0.0" "User Commands"
+.SH NAME
+mc-tui \- Fast and lightweight Terminal UI Minecraft Launcher for local files
+.SH SYNOPSIS
+.B mc-tui
+[\fIOPTIONS\fR]
+.SH DESCRIPTION
+.B mc-tui
+is a zero-dependency, lightweight Terminal User Interface (TUI) Minecraft launcher
+designed specifically for discovering and launching local Minecraft files without
+requiring external accounts or online telemetry.
+.SH OPTIONS
+.TP
+.B \-\-game\-dir \fIDIR\fR
+Specify Minecraft root directory (default: ~/.minecraft or configured path).
+.TP
+.B \-\-list
+List all locally installed Minecraft versions and exit.
+.TP
+.B \-\-launch \fIVERSION_ID\fR
+Directly launch a specified version without opening the interactive TUI.
+.TP
+.B \-\-username \fINAME\fR
+Override player username for launch.
+.TP
+.B \-\-ram \fISIZE\fR
+Override maximum RAM allocation (e.g. 4G, 8G).
+.TP
+.B \-\-preview \fIVERSION_ID\fR
+Print the generated Java launch command for \fIVERSION_ID\fR and exit.
+.TP
+.B \-\-download\-list
+List official Minecraft versions available for download from Mojang.
+.TP
+.B \-\-download \fIVERSION_ID\fR
+Download official vanilla Minecraft version (client JAR, libraries, and assets).
+.TP
+.B \-\-snapshots
+Include snapshots and pre-releases when listing versions with \-\-download\-list.
+.TP
+.B \-\-no\-assets
+Skip downloading asset files (sounds, textures, music) with \-\-download.
+.TP
+.B \-\-mirror \fI{official,bmclapi}\fR
+Select download mirror source ('official' or 'bmclapi').
+.TP
+.B \-h, \-\-help
+Show help message and exit.
+.SH TUI KEYBINDINGS
+.TP
+.B 1, 2, 3, 4, 5
+Switch between Versions, Settings, Console, Directory Picker, and Download tabs.
+.TP
+.B d
+Jump directly to Vanilla Downloader tab (from Versions view).
+.TP
+.B Tab
+Cycle to next tab.
+.TP
+.B Arrow Keys / j, k
+Navigate list items or settings fields.
+.TP
+.B Enter
+Launch selected version or edit setting field.
+.TP
+.B p
+Preview Java launch command for selected version.
+.TP
+.B /
+Filter versions by name.
+.TP
+.B r
+Refresh version list or reset settings.
+.TP
+.B s
+Save configuration.
+.TP
+.B q
+Quit application.
+.SH FILES
+.I ~/.config/mc-tui/config.json
+.RS
+User configuration file.
+.RE
+.SH AUTHOR
+mc-tui was created by heaway.

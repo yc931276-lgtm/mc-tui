@@ -1,0 +1,8 @@
+#!/bin/sh
+set -e
+
+if which py3compile >/dev/null 2>&1; then
+    py3compile -p mc-tui /usr/lib/python3/dist-packages/mc_tui 2>/dev/null || true
+fi
+
+exit 0
