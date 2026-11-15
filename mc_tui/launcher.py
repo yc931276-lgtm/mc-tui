@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
+from mc_tui import __version__ as MC_TUI_VERSION
 from mc_tui.config import LOGS_DIR, Config
 from mc_tui.java_detector import find_best_java
 from mc_tui.version_parser import (
@@ -131,7 +132,7 @@ class Launcher:
         if not java_info:
             raise RuntimeError(
                 f"No suitable Java found on system for Java major version {java_major}. "
-                "Please configure a valid Java path in Settings."
+                "Please configure a valid Java path in Settings, or install a JRE from the Settings tab."
             )
         java_bin = java_info.path
 
@@ -227,7 +228,7 @@ class Launcher:
             "${version_type}": str(version_type),
             "${natives_directory}": str(natives_dir),
             "${launcher_name}": "mc-tui",
-            "${launcher_version}": "1.0.0",
+            "${launcher_version}": MC_TUI_VERSION,
             "${classpath}": classpath_str,
             "${classpath_separator}": cp_separator,
             "${library_directory}": str(libs_dir),
@@ -274,7 +275,7 @@ class Launcher:
             # Legacy arguments format
             jvm_args.append(f"-Djava.library.path={natives_dir}")
             jvm_args.append("-Dminecraft.launcher.brand=mc-tui")
-            jvm_args.append("-Dminecraft.launcher.version=1.0.0")
+            jvm_args.append(f"-Dminecraft.launcher.version={MC_TUI_VERSION}")
             jvm_args.extend(["-cp", classpath_str])
 
             legacy_arg_str = v_data["minecraftArguments"]

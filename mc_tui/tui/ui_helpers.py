@@ -2,41 +2,56 @@
 from __future__ import annotations
 
 import curses
+import unicodedata
 from typing import List, Optional, Tuple
 
-
-class Colors:
-    NORMAL = 1
-    ACCENT = 2
-    SUCCESS = 3
-    WARNING = 4
-    DANGER = 5
-    MUTED = 6
-    HIGHLIGHT = 7
-    HEADER = 8
+from mc_tui.i18n import t
+from mc_tui.theme import Colors, apply_theme
 
 
-def init_colors() -> None:
-    curses.use_default_colors()
-    try:
-        curses.init_pair(Colors.NORMAL, curses.COLOR_WHITE, -1)
-        curses.init_pair(Colors.ACCENT, curses.COLOR_CYAN, -1)
-        curses.init_pair(Colors.SUCCESS, curses.COLOR_GREEN, -1)
-        curses.init_pair(Colors.WARNING, curses.COLOR_YELLOW, -1)
-        curses.init_pair(Colors.DANGER, curses.COLOR_RED, -1)
-        curses.init_pair(Colors.MUTED, curses.COLOR_BLACK + 8 if curses.COLORS > 8 else curses.COLOR_WHITE, -1)
-        curses.init_pair(Colors.HIGHLIGHT, curses.COLOR_BLACK, curses.COLOR_CYAN)
-        curses.init_pair(Colors.HEADER, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    except Exception:
-        # Fallback if terminal has limited colors
-        curses.init_pair(Colors.NORMAL, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(Colors.ACCENT, curses.COLOR_CYAN, curses.COLOR_BLACK)
-        curses.init_pair(Colors.SUCCESS, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(Colors.WARNING, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(Colors.DANGER, curses.COLOR_RED, curses.COLOR_BLACK)
-        curses.init_pair(Colors.MUTED, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(Colors.HIGHLIGHT, curses.COLOR_BLACK, curses.COLOR_CYAN)
-        curses.init_pair(Colors.HEADER, curses.COLOR_BLACK, curses.COLOR_WHITE)
+def init_colors(config=None) -> None:
+    """Apply the configured color theme (kept as the UI helper entry point)."""
+    apply_theme(config)
+
+
+def char_width(ch: str) -> int:
+    """Return visual display column width of a single character."""
+    if not ch:
+        return 0
+    return 2 if unicodedata.east_asian_width(ch) in ("W", "F") else 1
+
+
+def str_width(s: str) -> int:
+    """Return visual display column width of string, handling wide CJK characters."""
+    return sum(char_width(ch) for ch in s)
+
+
+def truncate_str(s: str, max_width: int) -> str:
+    """Truncate string so its visual width does not exceed max_width."""
+    cur_w = 0
+    res: List[str] = []
+    for ch in s:
+        w = char_width(ch)
+        if cur_w + w > max_width:
+            break
+        res.append(ch)
+        cur_w += w
+    return "".join(res)
+
+
+def pad_str(s: str, width: int, align: str = "left") -> str:
+    """Pad string with spaces taking visual display width into account."""
+    w = str_width(s)
+    if w >= width:
+        return truncate_str(s, width)
+    pad = " " * (width - w)
+    if align == "right":
+        return pad + s
+    elif align == "center":
+        left_len = (width - w) // 2
+        right_len = width - w - left_len
+        return (" " * left_len) + s + (" " * right_len)
+    return s + pad
 
 
 def safe_addstr(win: curses.window, y: int, x: int, text: str, attr: int = 0) -> None:
@@ -47,7 +62,7 @@ def safe_addstr(win: curses.window, y: int, x: int, text: str, attr: int = 0) ->
     available = max_x - x
     if available <= 0:
         return
-    to_write = text[:available]
+    to_write = truncate_str(text, available)
     try:
         win.addstr(y, x, to_write, attr)
     except curses.error:
@@ -77,7 +92,7 @@ def draw_box(win: curses.window, y: int, x: int, h: int, w: int, title: str = ""
 
         if title:
             title_text = f" {title} "
-            if len(title_text) < w - 4:
+            if str_width(title_text) < w - 4:
                 safe_addstr(win, y, x + 2, title_text, attr | curses.A_BOLD)
     finally:
         win.attroff(attr)
@@ -88,7 +103,8 @@ def prompt_input(
 ) -> Optional[str]:
     """Display an input modal and return user string, or None if cancelled."""
     max_y, max_x = stdscr.getmaxyx()
-    box_w = min(max(len(prompt) + 10, max_len + 8), max_x - 4)
+    pw = str_width(prompt)
+    box_w = min(max(pw + 10, max_len + 8), max_x - 4)
     box_h = 7
     start_y = max(1, (max_y - box_h) // 2)
     start_x = max(1, (max_x - box_w) // 2)
@@ -104,13 +120,13 @@ def prompt_input(
         box_win.bkgd(" ", curses.color_pair(Colors.NORMAL))
         box_win.box()
         safe_addstr(box_win, 0, 2, f" {prompt} ", curses.color_pair(Colors.ACCENT) | curses.A_BOLD)
-        safe_addstr(box_win, box_h - 2, 2, "[Enter] Confirm   [Esc] Cancel", curses.color_pair(Colors.MUTED))
+        safe_addstr(box_win, box_h - 2, 2, t("confirm_cancel_hint"), curses.color_pair(Colors.MUTED))
 
         # Input field
         visible_str = "".join(buf)
         field_w = box_w - 6
         disp_str = visible_str[-field_w:] if len(visible_str) > field_w else visible_str
-        safe_addstr(box_win, 2, 3, "[" + disp_str.ljust(field_w) + "]", curses.color_pair(Colors.NORMAL))
+        safe_addstr(box_win, 2, 3, "[" + pad_str(disp_str, field_w) + "]", curses.color_pair(Colors.NORMAL))
 
         # Position cursor
         rel_pos = min(cursor_idx, field_w)
@@ -125,6 +141,9 @@ def prompt_input(
         elif ch in (curses.KEY_ENTER, 10, 13):
             curses.curs_set(0)
             return "".join(buf)
+        elif ch == 21:  # Ctrl+U: clear the input line
+            buf.clear()
+            cursor_idx = 0
         elif ch in (curses.KEY_BACKSPACE, 127, 8):
             if cursor_idx > 0:
                 buf.pop(cursor_idx - 1)
@@ -147,7 +166,8 @@ def prompt_input(
 def show_message_modal(stdscr: curses.window, title: str, lines: List[str]) -> None:
     """Show a scrollable message or alert dialog."""
     max_y, max_x = stdscr.getmaxyx()
-    box_w = min(max_x - 6, max(len(l) for l in lines + [title]) + 8)
+    max_content_w = max(str_width(l) for l in lines + [title]) if (lines or title) else 30
+    box_w = min(max_x - 6, max_content_w + 8)
     box_w = max(box_w, 40)
     box_h = min(max_y - 4, len(lines) + 6)
     start_y = max(1, (max_y - box_h) // 2)
@@ -162,7 +182,7 @@ def show_message_modal(stdscr: curses.window, title: str, lines: List[str]) -> N
         win = curses.newwin(box_h, box_w, start_y, start_x)
         win.box()
         safe_addstr(win, 0, 2, f" {title} ", curses.color_pair(Colors.ACCENT) | curses.A_BOLD)
-        safe_addstr(win, box_h - 1, 2, " Press any key to close / [↑/↓] scroll ", curses.color_pair(Colors.MUTED))
+        safe_addstr(win, box_h - 1, 2, " [Esc / Enter] Close  [↑/↓] Scroll ", curses.color_pair(Colors.MUTED))
 
         for idx in range(content_h):
             line_idx = offset + idx
@@ -178,5 +198,5 @@ def show_message_modal(stdscr: curses.window, title: str, lines: List[str]) -> N
         elif ch in (curses.KEY_DOWN, ord("j")):
             if offset + content_h < len(lines):
                 offset += 1
-        else:
+        elif ch in (curses.KEY_ENTER, 10, 13, 27, ord("q"), ord("Q"), ord(" ")):
             break

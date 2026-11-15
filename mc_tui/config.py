@@ -21,6 +21,14 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     "window_height": 480,
     "last_version": "",
     "auto_detect_java": True,
+    "download_mirror": "official",
+    "download_assets": True,
+    "download_threads": 16,
+    "language": "auto",
+    "theme": "classic",
+    "accent_color": "auto",
+    "header_style": "auto",
+    "selection_style": "solid",
 }
 
 
@@ -109,3 +117,39 @@ class Config:
     @custom_jvm_args.setter
     def custom_jvm_args(self, val: str) -> None:
         self.set("custom_jvm_args", val)
+
+    @property
+    def download_mirror(self) -> str:
+        return str(self.get("download_mirror", "official"))
+
+    @download_mirror.setter
+    def download_mirror(self, val: str) -> None:
+        self.set("download_mirror", val)
+
+    @property
+    def download_assets(self) -> bool:
+        return bool(self.get("download_assets", True))
+
+    @download_assets.setter
+    def download_assets(self, val: bool) -> None:
+        self.set("download_assets", val)
+
+    @property
+    def download_threads(self) -> int:
+        val = self.get("download_threads", 16)
+        try:
+            return max(1, min(64, int(val)))
+        except (TypeError, ValueError):
+            return 16
+
+    @download_threads.setter
+    def download_threads(self, val: int) -> None:
+        self.set("download_threads", max(1, min(64, int(val))))
+
+    @property
+    def language(self) -> str:
+        return str(self.get("language", "auto"))
+
+    @language.setter
+    def language(self, val: str) -> None:
+        self.set("language", val)

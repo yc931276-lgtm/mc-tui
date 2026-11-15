@@ -2,6 +2,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from mc_tui import __version__ as MC_TUI_VERSION
 from mc_tui.config import Config
 from mc_tui.launcher import Launcher
 from mc_tui.version_parser import VersionScanner
@@ -50,6 +51,7 @@ class TestLauncher(unittest.TestCase):
             self.assertIn("TestPlayer", plan.args)
             self.assertIn("1.12.2", plan.args)
             self.assertIn(str(root), plan.args)
+            self.assertIn(f"-Dminecraft.launcher.version={MC_TUI_VERSION}", plan.args)
 
     def test_modern_launch_plan(self):
         with tempfile.TemporaryDirectory() as tmpdir:

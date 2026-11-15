@@ -1,0 +1,18 @@
+mc-tui (1.1.0-1) unstable; urgency=medium
+
+  * Add optional OpenJDK 8/17/21/25 JRE installation via apt.
+  * Add theme presets and appearance settings for the TUI.
+  * Add download-page version search with exact-match selection.
+  * Improve concurrent downloading: resume, de-duplication, error reporting.
+  * Generate the About build time at package build time.
+  * Derive launcher version tokens from mc_tui.__version__.
+
+ -- heaway <heaway@localhost>  Sun, 15 Nov 2026 11:26:41 +0800
+
+mc-tui (1.0.0-1) unstable; urgency=medium
+
+  * Initial Debian package release of MC-TUI.
+  * Packaged pure Python implementation with zero pip dependencies.
+  * Added CLI command `/usr/bin/mc-tui` and desktop launcher entry.
+
+ -- heaway <heaway@localhost>  Sun, 08 Nov 2026 13:53:06 +0800

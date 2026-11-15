@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+"""MC-TUI binary launcher."""
+from __future__ import annotations
+
+import sys
+
+# Ensure Debian dist-packages is accessible
+if "/usr/lib/python3/dist-packages" not in sys.path:
+    sys.path.insert(0, "/usr/lib/python3/dist-packages")
+
+from mc_tui.cli import cli
+
+if __name__ == "__main__":
+    cli()

@@ -1,0 +1,18 @@
+Package: mc-tui
+Version: 1.1.0-1
+Section: games
+Priority: optional
+Architecture: all
+Depends: python3 (>= 3.8)
+Maintainer: heaway <heaway@localhost>
+Description: Terminal User Interface Minecraft Launcher
+ MC-TUI is a lightweight, zero-dependency Terminal User Interface (TUI)
+ Minecraft launcher designed specifically for discovering and launching local
+ Minecraft files.
+ .
+ Features:
+  - 100% offline, local-first launcher
+  - Vanilla, Fabric, Forge, NeoForge, Quilt, and OptiFine support
+  - Smart Java runtime detection (Java 8, 11, 17, 21, 25)
+  - Optional OpenJDK 8/17/21/25 JRE installation via apt from the TUI
+  - Interactive curses TUI and headless CLI mode
