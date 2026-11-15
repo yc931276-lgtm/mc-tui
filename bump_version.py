@@ -21,6 +21,7 @@ CONTROL_FILE = ROOT / "debian" / "control"
 CHANGELOG_FILE = ROOT / "debian" / "changelog"
 MAN_FILE = ROOT / "debian" / "mc-tui.1"
 README_FILE = ROOT / "README.md"
+README_ZH_FILE = ROOT / "README.zh-CN.md"
 
 UPSTREAM_RE = re.compile(r"^\d+(?:\.\d+){1,3}(?:[-+~][0-9A-Za-z.+~]+)?$")
 REVISION_RE = re.compile(r"^[0-9][0-9A-Za-z.+~]*$")
@@ -77,6 +78,7 @@ def main() -> int:
     changelog_text = CHANGELOG_FILE.read_text(encoding="utf-8")
     man_text = MAN_FILE.read_text(encoding="utf-8")
     readme_text = README_FILE.read_text(encoding="utf-8")
+    readme_zh_text = README_ZH_FILE.read_text(encoding="utf-8")
 
     maintainer_match = re.search(r"^Maintainer:\s*(.+)$", control_text, flags=re.M)
     maintainer = maintainer_match.group(1).strip() if maintainer_match else "heaway <heaway@localhost>"
@@ -95,6 +97,11 @@ def main() -> int:
         f"mc-tui_{deb_version}_all.deb",
         readme_text,
     )
+    new_readme_zh = re.sub(
+        r"mc-tui_[0-9][0-9A-Za-z.+~-]*_all\.deb",
+        f"mc-tui_{deb_version}_all.deb",
+        readme_zh_text,
+    )
 
     if changelog_text.startswith(f"mc-tui ({deb_version})"):
         new_changelog = changelog_text
@@ -107,6 +114,7 @@ def main() -> int:
         MAN_FILE: new_man,
         CHANGELOG_FILE: new_changelog,
         README_FILE: new_readme,
+        README_ZH_FILE: new_readme_zh,
     }
 
     for path, content in updates.items():

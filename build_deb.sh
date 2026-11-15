@@ -89,6 +89,7 @@ chmod 644 "$BUILD_DIR/usr/share/man/man1/mc-tui.1.gz"
 # 9. Documentation and changelog
 echo "==> Installing documentation..."
 install -m 644 "$SCRIPT_DIR/README.md" "$BUILD_DIR/usr/share/doc/$PKG_NAME/README.md"
+install -m 644 "$SCRIPT_DIR/README.zh-CN.md" "$BUILD_DIR/usr/share/doc/$PKG_NAME/README.zh-CN.md"
 install -m 644 "$SCRIPT_DIR/debian/copyright" "$BUILD_DIR/usr/share/doc/$PKG_NAME/copyright"
 gzip -9n -c "$SCRIPT_DIR/debian/changelog" > "$BUILD_DIR/usr/share/doc/$PKG_NAME/changelog.Debian.gz"
 chmod 644 "$BUILD_DIR/usr/share/doc/$PKG_NAME/changelog.Debian.gz"

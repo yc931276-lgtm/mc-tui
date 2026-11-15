@@ -1,5 +1,7 @@
 # MC-TUI: Terminal User Interface Minecraft Launcher
 
+**English** | [简体中文](README.zh-CN.md)
+
 A lightweight, zero-dependency **Terminal User Interface (TUI) Minecraft launcher** designed specifically for discovering and launching **local Minecraft files**.
 
 Built strictly with Python's standard library (`curses`, `subprocess`, `json`, `uuid`, etc.), requiring **no external pip packages** or compilers.
@@ -139,14 +141,19 @@ mc-tui/
 ├── tests/
 │   ├── test_config.py
 │   ├── test_downloader.py
+│   ├── test_downloader_resume.py
+│   ├── test_execution.py
 │   ├── test_i18n.py
 │   ├── test_java_detector.py
-│   ├── test_parser.py
+│   ├── test_jre_manager.py
 │   ├── test_launcher.py
-│   └── test_execution.py
+│   ├── test_parser.py
+│   ├── test_theme.py
+│   └── test_version_filter.py
 ├── run.py                  # CLI and TUI launcher entrypoint
 ├── mc-tui                  # Executable wrapper symlink
-└── README.md
+├── README.md               # English
+└── README.zh-CN.md         # Simplified Chinese
 ```
 
 ---
