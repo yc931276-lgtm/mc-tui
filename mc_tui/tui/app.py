@@ -34,6 +34,14 @@ from mc_tui.theme import (
     get_theme_name,
     next_choice,
 )
+from mc_tui.tui.mouse import (
+    button_hit,
+    dir_index_at,
+    download_index_at,
+    settings_index_at,
+    tab_index_at,
+    version_index_at,
+)
 from mc_tui.tui.ui_helpers import (
     Colors,
     init_colors,
@@ -43,6 +51,7 @@ from mc_tui.tui.ui_helpers import (
 from mc_tui.tui.version_filter import best_match_index, filter_versions
 from mc_tui.tui.views import (
     build_settings_fields,
+    get_tabs,
     render_about_view,
     render_console_view,
     render_dir_picker_view,
@@ -258,10 +267,129 @@ class MCTuiApp:
         self.download_thread = threading.Thread(target=task, daemon=True)
         self.download_thread.start()
 
+    def _handle_mouse(self, stdscr: curses.window) -> None:
+        """Handle a left click on tabs, lists, settings and action buttons."""
+        if self.is_downloading:
+            return
+
+        try:
+            _mouse_id, mx, my, _z, bstate = curses.getmouse()
+        except curses.error:
+            return
+
+        double = bool(bstate & curses.BUTTON1_DOUBLE_CLICKED)
+        if not double and not (bstate & curses.BUTTON1_CLICKED):
+            return
+
+        max_y, max_x = stdscr.getmaxyx()
+        if max_y < 12 or max_x < 40:
+            return
+
+        top_y = 4
+        bottom_y = max_y - 1
+
+        # Header tabs (row 1)
+        if my == 1:
+            index = tab_index_at(mx, get_tabs())
+            if index is not None:
+                self.active_tab = index
+                if index == 4 and not self.manifest_loaded:
+                    self.load_manifest_async()
+            return
+
+        if self.active_tab == 0:
+            index = version_index_at(
+                my,
+                mx,
+                max_x,
+                top_y,
+                bottom_y,
+                bool(self.filter_text),
+                len(self.filtered_versions),
+                self.selected_version_idx,
+            )
+            if index is not None:
+                if double:
+                    self.selected_version_idx = index
+                    self._launch_selected_version(stdscr)
+                else:
+                    self.selected_version_idx = index
+                return
+
+            split_x = int(max_x * 0.58)
+            if button_hit(mx, my, bottom_y - 3, split_x + 2, t("btn_launch")):
+                self._launch_selected_version(stdscr)
+            return
+
+        if self.active_tab == 1:
+            fields = build_settings_fields(self.config)
+            index = settings_index_at(
+                my,
+                top_y,
+                bottom_y,
+                len(fields),
+                self.selected_setting_idx,
+            )
+            if index is None:
+                return
+
+            if double:
+                self.selected_setting_idx = index
+                self._edit_setting_field(stdscr, index)
+            elif index != self.selected_setting_idx:
+                self.selected_setting_idx = index
+            elif mx >= 32:
+                # Clicking the value of the already-selected row activates it.
+                self._edit_setting_field(stdscr, index)
+            return
+
+        if self.active_tab == 3:
+            index = dir_index_at(
+                my,
+                top_y,
+                bottom_y,
+                len(self.dir_candidates),
+            )
+            if index is not None:
+                self.selected_dir_idx = index
+                if double:
+                    self._handle_dir_input(stdscr, curses.KEY_ENTER)
+            return
+
+        if self.active_tab == 4:
+            if self.manifest_loading or self.manifest_error or not self.filtered_remote_versions:
+                return
+
+            index = download_index_at(
+                my,
+                mx,
+                max_x,
+                top_y,
+                bottom_y,
+                len(self.filtered_remote_versions),
+                self.selected_remote_idx,
+            )
+            if index is not None:
+                self.selected_remote_idx = index
+                if double:
+                    self.start_download_selected(stdscr)
+                return
+
+            split_x = int(max_x * 0.58)
+            current = self.filtered_remote_versions[self.selected_remote_idx]
+            installed = {version.id for version in self.all_versions}
+            label = t("btn_redownload") if current.id in installed else t("btn_download")
+            if button_hit(mx, my, bottom_y - 4, split_x + 2, label):
+                self.start_download_selected(stdscr)
+
     def run(self, stdscr: curses.window) -> None:
         """Curses main loop."""
         curses.curs_set(0)
         stdscr.keypad(True)
+        try:
+            curses.mousemask(curses.ALL_MOUSE_EVENTS)
+        except curses.error:
+            pass
         stdscr.timeout(100)  # Non-blocking input timeout (100ms) for live logs & progress
         init_colors(self.config)
 
@@ -388,6 +516,10 @@ class MCTuiApp:
             # Handle user keystroke
             ch = stdscr.getch()
             if ch == -1:
+                continue
+
+            if ch == curses.KEY_MOUSE:
+                self._handle_mouse(stdscr)
                 continue
 
             # If downloading, only allow cancelling with Esc or 'q'

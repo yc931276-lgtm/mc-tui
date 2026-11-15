@@ -40,6 +40,7 @@ Built strictly with Python's standard library (`curses`, `subprocess`, `json`, `
   - **Console Logs View**: Real-time Minecraft process output viewer with colorized logs, auto-scroll, and process termination.
   - **Game Directory Selector**: Easily switch between `~/.minecraft`, Prism Launcher instances, Flatpak directories, or custom folders.
   - **Vanilla Downloader**: Browse official releases/snapshots, search by version ID (e.g. `1.20.4`), preview details, and download directly within the TUI.
+  - **Mouse Support**: Click tabs, list rows and LAUNCH/DOWNLOAD buttons; double-click a row to activate it; click the value of a selected setting to edit it.
 - **CLI Companion**:
   - Use headless or in scripts via `--list`, `--launch`, and `--preview`.
 
@@ -115,6 +116,8 @@ mc-tui
 | `[c]` | Clear console logs |
 | `[e]` | Enter custom path (Game Dir view) |
 | `[q]` | Quit launcher / Cancel active download |
+| Mouse click | Switch tabs, select list rows, press LAUNCH/DOWNLOAD buttons |
+| Mouse double-click | Launch / edit / download the clicked row |
 
 ---
 
@@ -137,6 +140,7 @@ mc-tui/
 │       ├── app.py          # Main curses event loop & controller
 │       ├── ui_helpers.py   # Modals, color pairs, safe rendering, text prompts
 │       ├── version_filter.py # Download-page version search and best-match selection
+│       ├── mouse.py        # Mouse hit-testing for tabs, rows and buttons
 │       └── views.py        # Tab views: versions, settings, console, directory picker, download
 ├── tests/
 │   ├── test_config.py
@@ -147,6 +151,7 @@ mc-tui/
 │   ├── test_java_detector.py
 │   ├── test_jre_manager.py
 │   ├── test_launcher.py
+│   ├── test_mouse.py
 │   ├── test_parser.py
 │   ├── test_theme.py
 │   └── test_version_filter.py

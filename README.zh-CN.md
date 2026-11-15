@@ -40,6 +40,7 @@
   - **控制台日志**：实时查看 Minecraft 进程输出，彩色日志、自动滚动和结束进程。
   - **游戏目录选择器**：在 `~/.minecraft`、Prism Launcher 实例、Flatpak 目录或自定义文件夹之间切换。
   - **原版下载器**：浏览官方正式版/快照，按版本号搜索（如 `1.20.4`），预览详情并直接在 TUI 中下载。
+  - **鼠标支持**：点击标签页、列表行和“启动/下载”按钮；双击行执行操作；点击已选中设置项的值即可编辑。
 - **CLI 配套**：
   - 通过 `--list`、`--launch` 和 `--preview` 在无界面模式或脚本中使用。
 
@@ -115,6 +116,8 @@ mc-tui
 | `[c]` | 清空控制台日志 |
 | `[e]` | 输入自定义路径（游戏目录页） |
 | `[q]` | 退出启动器 / 取消当前下载 |
+| 鼠标单击 | 切换标签页、选择列表行、点击“启动/下载”按钮 |
+| 鼠标双击 | 启动 / 编辑 / 下载鼠标所在行 |
 
 ---
 
@@ -137,6 +140,7 @@ mc-tui/
 │       ├── app.py          # curses 主事件循环与控制器
 │       ├── ui_helpers.py   # 弹窗、颜色对、安全渲染、文本输入
 │       ├── version_filter.py # 下载页版本搜索与最佳匹配
+│       ├── mouse.py        # 标签页、列表行与按钮的鼠标点击命中检测
 │       └── views.py        # 标签页视图：版本、设置、控制台、目录选择、下载
 ├── tests/
 │   ├── test_config.py
@@ -147,6 +151,7 @@ mc-tui/
 │   ├── test_java_detector.py
 │   ├── test_jre_manager.py
 │   ├── test_launcher.py
+│   ├── test_mouse.py
 │   ├── test_parser.py
 │   ├── test_theme.py
 │   └── test_version_filter.py
